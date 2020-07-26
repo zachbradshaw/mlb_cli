@@ -8,13 +8,9 @@ module.exports = () => {
     cmd = "version";
   }
 
-  if (args.linescore) {
-    cmd = "linescore";
-  }
-
   switch (cmd) {
-    case "linescore":
-      require("./cmds/linescore")(args);
+    case "scoreboard":
+      require("./cmds/scoreboard")(args);
       break;
     case "help":
       console.log("Help is unavailable at the moment.");
