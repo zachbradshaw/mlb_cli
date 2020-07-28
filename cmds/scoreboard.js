@@ -1,4 +1,5 @@
 const Table = require("cli-table3");
+const chalk = require("chalk");
 const { getSchedule } = require("../api");
 
 const fillLineScore = (arr) => {
@@ -31,10 +32,10 @@ module.exports = async (args) => {
       status,
       league
     } = game;
-
     const hasNotStarted =
-      status.status.toLowerCase() === "preview" ||
-      status.status.toLowerCase() === "pre game";
+      status.status === "Preview" ||
+      status.status === "Pre-Game" ||
+      status.status === "Warmup";
 
     if (args.team) {
       const selectedTeam = args.team.toUpperCase();
@@ -54,7 +55,14 @@ module.exports = async (args) => {
 
     const scoreboard = new Table({
       head: !hasNotStarted
-        ? ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "R", "H", "E"]
+        ? ["", "1", "2", "3", "4", "5", "6", "7", "8", "9", "R", "H", "E"].map(
+            (val) => {
+              if (val === status.inning) {
+                val = chalk.underline.red(val);
+              }
+              return val;
+            }
+          )
         : [
             "",
             {
@@ -62,11 +70,37 @@ module.exports = async (args) => {
               content: `${time} ${ampm} ${time_zone} | ${venue}`,
               hAlign: "center"
             }
-          ]
+          ],
+      style: {
+        head: ["blue"]
+      }
     });
 
     const homeScore = [];
     const awayScore = [];
+
+    if (hasNotStarted) {
+      scoreboard.push(
+        [
+          away_name_abbrev,
+          {
+            colSpan: 24,
+            content: `${away_win} - ${away_loss} | Probable pitcher: ${
+              away_probable_pitcher.first
+            } ${away_probable_pitcher.last}`
+          }
+        ],
+        [
+          home_name_abbrev,
+          {
+            colSpan: 24,
+            content: `${home_win} - ${home_loss} | Probable pitcher: ${
+              home_probable_pitcher.first
+            } ${home_probable_pitcher.last}`
+          }
+        ]
+      );
+    }
 
     if (linescore && Array.isArray(linescore.inning)) {
       linescore.inning.forEach((inning) => {
@@ -88,27 +122,6 @@ module.exports = async (args) => {
           .concat(
             linescore && [linescore.r.home, linescore.h.home, linescore.e.home]
           )
-      );
-    } else if (hasNotStarted) {
-      scoreboard.push(
-        [
-          away_name_abbrev,
-          {
-            colSpan: 24,
-            content: `${away_win} - ${away_loss} | Probable pitcher: ${
-              away_probable_pitcher.first
-            } ${away_probable_pitcher.last}`
-          }
-        ],
-        [
-          home_name_abbrev,
-          {
-            colSpan: 24,
-            content: `${home_win} - ${home_loss} | Probable pitcher: ${
-              home_probable_pitcher.first
-            } ${home_probable_pitcher.last}`
-          }
-        ]
       );
     }
 
