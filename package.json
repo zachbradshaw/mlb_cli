@@ -2,7 +2,7 @@
   "name": "mlb_cli",
   "version": "1.0.0",
   "description": "MLB scoreboard in the terminal",
-  "main": "index.js",
+  "main": "./index.js",
   "author": "<bradshaw.zachary@gmail.com>",
   "license": "MIT",
   "bin": {
@@ -16,6 +16,8 @@
     "minimist": "^1.2.0"
   },
   "devDependencies": {
+    "@types/minimist": "^1.2.0",
+    "@types/node": "^14.0.27",
     "prettier": "^1.17.0"
   }
 }
