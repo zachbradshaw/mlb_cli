@@ -21,6 +21,7 @@ mlb scoreboard --team cin
 - [ ] Help command with options
 - [ ] Tests
 - [ ] Extra innings UI issues
-- [ ] Typescript rewrite?
 - [ ] Division options
 - [ ] More info for single game display
+- [ ] Handle postponed games
+- [ ] Figure out better way to show game previews
