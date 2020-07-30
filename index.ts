@@ -1,4 +1,6 @@
-const minimist = require('minimist')
+import minimist from 'minimist'
+import scoreboard from './src/cmds/scoreboard'
+import version from './src/cmds/version'
 
 module.exports = () => {
   const args = minimist(process.argv.slice(2))
@@ -14,13 +16,13 @@ module.exports = () => {
 
   switch (cmd) {
     case 'scoreboard':
-      require('./built/cmds/scoreboard')(args)
+      scoreboard(args)
       break
     case 'help':
       console.log('Help is unavailable at the moment.')
       break
     case 'version':
-      require('./built/cmds/version')(args)
+      version()
       break
     default:
       console.error(`"${cmd}" is not a valid command.`)

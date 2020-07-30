@@ -9,6 +9,9 @@ yarn
 # get all box scores for current day
 mlb scoreboard
 
+# get scores for a specific day
+mlb scoreboard --date YYYY/MM/DD
+
 # get box scores for league
 mlb scoreboard --league <n | a>
 
@@ -23,5 +26,4 @@ mlb scoreboard --team cin
 - [ ] Extra innings UI issues
 - [ ] Division options
 - [ ] More info for single game display
-- [ ] Handle postponed games
 - [ ] Figure out better way to show game previews

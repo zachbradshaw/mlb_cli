@@ -12,23 +12,7 @@ interface ScoreboardArgs extends ParsedArgs {
   date?: string
 }
 
-const SCOREBOARD_HEADER = [
-  '',
-  '1',
-  '2',
-  '3',
-  '4',
-  '5',
-  '6',
-  '7',
-  '8',
-  '9',
-  'R',
-  'H',
-  'E',
-]
-
-module.exports = async (args: ScoreboardArgs) => {
+export default async (args: ScoreboardArgs) => {
   const games: Game[] = await getSchedule(
     args.date ? args.date : format(new Date(), 'YYYY/MM/DD')
   )
@@ -50,10 +34,12 @@ module.exports = async (args: ScoreboardArgs) => {
       league,
     } = game
 
-    const hasNotStarted =
-      status.status === 'Preview' ||
-      status.status === 'Pre-Game' ||
-      status.status === 'Warmup'
+    const hasNotStarted = [
+      GameStatus.PREVIEW,
+      GameStatus.PRE_GAME,
+      GameStatus.WARMUP,
+      GameStatus.POSTPONED,
+    ].includes(status.status as GameStatus)
 
     if (args.team) {
       const selectedTeam = args.team.toUpperCase()
@@ -76,11 +62,7 @@ module.exports = async (args: ScoreboardArgs) => {
       let match = false
       switch (selectedStatus) {
         case 'PREGAME':
-          match = [
-            GameStatus.PRE_GAME,
-            GameStatus.PREVIEW,
-            GameStatus.WARMUP,
-          ].includes(status.status as GameStatus)
+          match = hasNotStarted
           break
         case 'LIVE':
           match = [GameStatus.IN_PROGRESS].includes(status.status as GameStatus)
@@ -98,21 +80,18 @@ module.exports = async (args: ScoreboardArgs) => {
     }
 
     const scoreboard = new Table({
-      head: createScoreboardHeader(hasNotStarted, SCOREBOARD_HEADER, game),
+      head: createScoreboardHeader(game, hasNotStarted),
       style: {
         head: ['blue'],
       },
     })
 
-    const homeScore: any = []
-    const awayScore: any = []
-
-    if (hasNotStarted) {
+    if (hasNotStarted && status.status !== GameStatus.POSTPONED) {
       scoreboard.push(
         [
           away_name_abbrev,
           {
-            colSpan: 24,
+            colSpan: 12,
             content: `${away_win} - ${away_loss} | Probable pitcher: ${
               away_probable_pitcher.first
             } ${away_probable_pitcher.last}`,
@@ -121,7 +100,7 @@ module.exports = async (args: ScoreboardArgs) => {
         [
           home_name_abbrev,
           {
-            colSpan: 24,
+            colSpan: 12,
             content: `${home_win} - ${home_loss} | Probable pitcher: ${
               home_probable_pitcher.first
             } ${home_probable_pitcher.last}`,
@@ -130,7 +109,30 @@ module.exports = async (args: ScoreboardArgs) => {
       )
     }
 
+    if (status.status === GameStatus.POSTPONED) {
+      scoreboard.push(
+        [
+          away_name_abbrev,
+          {
+            colSpan: 24,
+            content: 'This game has been postponed',
+            hAlign: 'center',
+          },
+        ] as any,
+        [
+          home_name_abbrev,
+          {
+            colSpan: 24,
+            content: '',
+          },
+        ] as any
+      )
+    }
+
     if (linescore && Array.isArray(linescore.inning)) {
+      const homeScore: string[] = []
+      const awayScore: string[] = []
+
       linescore.inning.forEach(inning => {
         awayScore.push(inning.away)
         homeScore.push(inning.home)
