@@ -9,7 +9,7 @@
     "mlb": "bin/mlb"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "chalk": "^4.1.0",
     "cli-table3": "^0.5.1",
     "date-fns": "^1.30.1",
